@@ -29,6 +29,20 @@ public class Message {
     private final ArrayList<String> sentHashes = new ArrayList<>();
     private final ArrayList<String> sentRecipients = new ArrayList<>();
     private final ArrayList<String> sentTexts = new ArrayList<>();
+    
+    // Part 3 Arrays
+
+private final ArrayList<String> sentMessages = new ArrayList<>();
+
+private final ArrayList<String> disregardedMessages = new ArrayList<>();
+
+private final ArrayList<String> storedMessageIDs = new ArrayList<>();
+private final ArrayList<String> storedMessageHashes = new ArrayList<>();
+private final ArrayList<String> storedRecipients = new ArrayList<>();
+private final ArrayList<String> storedMessages = new ArrayList<>();
+
+private final ArrayList<String> messageIDs = new ArrayList<>();
+private final ArrayList<String> messageHashes = new ArrayList<>();
 
     // Messages stored to send later (each entry is one JSON object)
     private final ArrayList<String> storedJsonObjects = new ArrayList<>();
@@ -126,19 +140,40 @@ public class Message {
     }
 
     /* Carries out the user's choice for one message and returns the outcome text. */
-    public String processMessage(String id, String hash, String recipient, String text, int choice) {
-        if (choice == 1) {
-            sentIds.add(id);
-            sentHashes.add(hash);
-            sentRecipients.add(recipient);
-            sentTexts.add(text);
-            numMessageSent++;
-        } else if (choice == 3) {
-            storeMessage(id, hash, recipient, text);
-        }
-        return SentMessage(choice);
+    public String processMessage(String id, String hash,String recipient, String text,
+                             int choice) {
+
+    // Store every ID and Hash
+    messageIDs.add(id);
+    messageHashes.add(hash);
+
+    if (choice == 1) {
+
+        sentIds.add(id);
+        sentHashes.add(hash);
+        sentRecipients.add(recipient);
+        sentTexts.add(text);
+
+        sentMessages.add(text);
+
+        numMessageSent++;
+
+    } else if (choice == 2) {
+
+        disregardedMessages.add(text);
+
+    } else if (choice == 3) {
+
+        storedMessageIDs.add(id);
+        storedMessageHashes.add(hash);
+        storedRecipients.add(recipient);
+        storedMessages.add(text);
+
+        storeMessage(id, hash, recipient, text);
     }
 
+    return SentMessage(choice);
+}
     /* Returns every message sent while the program is running (ID, Hash, Recipient, Message). */
     public String printMessages() {
         StringBuilder allMessages = new StringBuilder();
@@ -164,6 +199,7 @@ public class Message {
      * (https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/FileWriter.html).
      */
     public void storeMessage(String id, String hash, String recipient, String text) {
+        System.out.println("DEBUG: storeMessage called");
         storedJsonObjects.add(" {\n"
                 + "    \"messageID\": \"" + escapeJson(id) + "\",\n"
                 + "    \"messageHash\": \"" + escapeJson(hash) + "\",\n"
@@ -175,6 +211,9 @@ public class Message {
             writer.write("[\n" + String.join(",\n", storedJsonObjects) + "\n]\n");
         } catch (IOException e) {
             System.out.println("Could not write the JSON file: " + e.getMessage());
+            System.out.println(
+    new java.io.File(JSON_FILE_NAME).getAbsolutePath()
+);
         }
     }
 
@@ -285,7 +324,120 @@ public class Message {
             }
         }
     }
+    
+    public String getLongestStoredMessage() {
+
+    if (storedMessages.isEmpty()) {
+        return "No stored messages found.";
+    }
+
+    String longest = storedMessages.get(0);
+
+    for (String msg : storedMessages) {
+
+        if (msg.length() > longest.length()) {
+            longest = msg;
+        }
+    }
+
+    return longest;
 }
+    public void displayStoredMessages() {
+
+    for(int i = 0; i < storedMessages.size(); i++) {
+
+        System.out.println("Recipient: "
+                + storedRecipients.get(i));
+
+        System.out.println("Message: "
+                + storedMessages.get(i));
+
+        System.out.println("---------------------");
+    }
+}
+    
+    public String searchMessageID(String id) {
+
+    for(int i = 0; i < storedMessageIDs.size(); i++) {
+
+        if(storedMessageIDs.get(i).equals(id)) {
+
+            return "Recipient: "
+                    + storedRecipients.get(i)
+                    + "\nMessage: "
+                    + storedMessages.get(i);
+        }
+    }
+
+    return "Message not found.";
+}
+    
+    public String searchRecipient(String recipient) {
+
+    StringBuilder result = new StringBuilder();
+
+    for(int i = 0; i < storedRecipients.size(); i++) {
+
+        if(storedRecipients.get(i).equals(recipient)) {
+
+            result.append(storedMessages.get(i))
+                    .append("\n");
+        }
+    }
+
+    if(result.length() == 0) {
+        return "No messages found.";
+    }
+
+    return result.toString();
+}
+    
+    public String deleteMessage(String hash) {
+
+    for(int i = 0; i < storedMessageHashes.size(); i++) {
+
+        if(storedMessageHashes.get(i).equals(hash)) {
+
+            String deletedMessage =
+                    storedMessages.get(i);
+
+            storedMessageHashes.remove(i);
+            storedMessageIDs.remove(i);
+            storedRecipients.remove(i);
+            storedMessages.remove(i);
+
+            return "Message: \""
+                    + deletedMessage
+                    + "\" successfully deleted.";
+        }
+    }
+
+    return "Message not found.";
+}
+    
+    public void displayReport() {
+
+    System.out.println("\n===== REPORT =====");
+
+    for(int i = 0; i < storedMessages.size(); i++) {
+
+        System.out.println(
+                "\nMessage Hash: "
+                        + storedMessageHashes.get(i));
+
+        System.out.println(
+                "Recipient: "
+                        + storedRecipients.get(i));
+
+        System.out.println(
+                "Message: "
+                        + storedMessages.get(i));
+    }
+}
+    
+    public void loadStoredMessages() {}
+}
+     
         
     
 

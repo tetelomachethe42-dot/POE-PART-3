@@ -24,11 +24,11 @@ public class QuickChat {
 
         registerUser(scan, login);
         loginUser(scan, login);
+         Message message = new Message();
 
-        // Only reached after a successful login
         System.out.println("\nWelcome to QuickChat.");
-
-        Message message = new Message();
+       
+        message.loadStoredMessages();
         message.setMaxMessages(askNumberOfMessages(scan));
 
         int option = 0;
@@ -37,19 +37,26 @@ public class QuickChat {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");
             System.out.print("Choose an option: ");
 
             option = readNumber(scan);
 
-            switch (option) {
-                case 1 -> message.sendingMessages();
-                case 2 -> System.out.println("Coming Soon.");
-                case 3 -> System.out.println("Goodbye, thank you for using QuickChat.");
-                default -> System.out.println("Invalid option!");
+            switch(option){
+
+    case 1 -> message.sendingMessages();
+
+    case 2 ->System.out.println("Coming Soon.");
+
+    case 3 ->System.out.println( "Goodbye, thank you for using QuickChat.");
+
+    case 4 -> storedMenu(scan, message);
+
+    default ->System.out.println("Invalid option!");
+}
             }
         }
-    }
-
+    
     /** Keeps asking for details until the registration is accepted. */
     private static void registerUser(Scanner scan, Login login) {
         System.out.println("===== Register =====");
@@ -106,6 +113,94 @@ public class QuickChat {
             return 0;
         }
     }
+private static void storedMenu(
+        Scanner scan,
+        Message message){
+
+    int option;
+
+    do{
+
+        System.out.println("\n===== STORED MESSAGES =====");
+
+        System.out.println(
+                "1. Display Stored Messages");
+
+        System.out.println(
+                "2. Display Longest Message");
+
+        System.out.println(
+                "3. Search Message ID");
+
+        System.out.println(
+                "4. Search Recipient");
+
+        System.out.println(
+                "5. Delete Message");
+
+        System.out.println(
+                "6. Display Report");
+
+        System.out.println(
+                "7. Back");
+
+        System.out.print("Choose option: ");
+
+        option = Integer.parseInt(
+                scan.nextLine());
+
+        switch(option){
+
+            case 1 ->
+                    message.displayStoredMessages();
+
+            case 2 ->
+                    System.out.println(
+                        message.getLongestStoredMessage());
+
+            case 3 -> {
+
+                System.out.print(
+                        "Enter Message ID: ");
+
+                String id =
+                        scan.nextLine();
+
+                System.out.println(
+                        message.searchMessageID(id));
+            }
+
+            case 4 -> {
+
+                System.out.print( "Enter Recipient: ");
+
+                String recipient =
+                        scan.nextLine();
+
+                System.out.println(
+                        message.searchRecipient(
+                                recipient));
+            }
+
+            
+            case 5 -> {
+
+                System.out.print( "Enter Hash: ");
+
+                String hash = scan.nextLine();
+
+                System.out.println(message.deleteMessage(
+                                hash));
+            }
+
+            case 6 -> message.displayReport();
+
+        }
+
+    }while(option != 7);
+}// closes storedMenu
 }
+
+
 
 
